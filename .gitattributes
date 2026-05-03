@@ -1,0 +1,189 @@
+* text=auto eol=lf
+
+# Repository metadata and general text files
+/.gitattributes text eol=lf
+/.gitignore text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.conf text eol=lf
+*.config text eol=lf
+*.settings text eol=lf
+*.types text eol=lf
+*.properties text eol=lf
+*.plist text eol=lf
+*.gradle text eol=lf
+*.editorconfig text eol=lf
+*.dotsettings text eol=lf
+*.html text eol=lf
+*.htm text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.sass text eol=lf
+*.less text eol=lf
+*.svg text eol=lf
+*.sql text eol=lf
+*.graphql text eol=lf
+*.gql text eol=lf
+
+# Source code and scripts
+*.cs text eol=lf diff=csharp
+*.csx text eol=lf diff=csharp
+*.js text eol=lf
+*.jsx text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.java text eol=lf
+*.kt text eol=lf
+*.swift text eol=lf
+*.m text eol=lf
+*.mm text eol=lf
+*.h text eol=lf
+*.hpp text eol=lf
+*.c text eol=lf
+*.cc text eol=lf
+*.cpp text eol=lf
+*.go text eol=lf
+*.rs text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# MSBuild and Visual Studio files
+*.sln text eol=crlf
+*.slnx text eol=crlf
+*.csproj text eol=crlf
+*.vbproj text eol=crlf
+*.fsproj text eol=crlf
+*.vcxproj text eol=crlf
+*.vcproj text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf
+*.user text eol=crlf
+*.userprefs text eol=crlf
+
+# Windows metadata and local editor state
+desktop.ini -text
+*.dwlt -text
+
+# Binary assets and archives
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.bmp -text
+*.tga -text
+*.tif -text
+*.tiff -text
+*.psd -text
+*.psb -text
+*.exr -text
+*.hdr -text
+*.ico -text
+*.icns -text
+*.ttf -text
+*.otf -text
+*.woff -text
+*.woff2 -text
+*.mp3 -text
+*.wav -text
+*.ogg -text
+*.aif -text
+*.aiff -text
+*.mp4 -text
+*.mov -text
+*.avi -text
+*.webm -text
+*.fbx -text
+*.blend -text
+*.blend1 -text
+*.dll -text
+*.so -text
+*.dylib -text
+*.bundle -text
+*.pdf -text
+*.doc -text
+*.docx -text
+*.xls -text
+*.xlsx -text
+*.zip -text
+*.7z -text
+*.rar -text
+*.gz -text
+*.tar -text
+*.jar -text
+*.aar -text
+*.apk -text
+*.aab -text
+*.keystore -text
+*.jks -text
+*.unitypackage -text
+*.app -text
+
+# Unity-specific attributes
+[attr]unity-json eol=lf linguist-language=json
+[attr]unity-yaml merge=unityyamlmerge eol=lf linguist-language=yaml
+
+# Unity JSON files
+*.asmdef unity-json
+*.asmref unity-json
+*.index unity-json
+*.inputactions unity-json
+*.shadergraph unity-json
+*.shadersubgraph unity-json
+
+# Unity UI Toolkit files
+*.uxml text eol=lf linguist-language=xml linguist-detectable
+*.uss text eol=lf diff=css linguist-language=css
+*.tss text eol=lf diff=css linguist-language=css
+
+# Unity shader and editor source files
+*.cginc text eol=lf
+*.compute text eol=lf linguist-language=hlsl
+*.hlsl text eol=lf linguist-language=hlsl
+*.raytrace text eol=lf linguist-language=hlsl
+*.rsp text eol=lf
+*.shader text eol=lf
+
+# Unity YAML files
+*.anim unity-yaml
+*.asset unity-yaml
+*.brush unity-yaml
+*.controller unity-yaml
+*.flare unity-yaml
+*.fontsettings unity-yaml
+*.giparams unity-yaml
+*.guiskin unity-yaml
+*.lighting unity-yaml
+*.mask unity-yaml
+*.mat unity-yaml
+*.meta unity-yaml
+*.mixer unity-yaml
+*.overrideController unity-yaml
+*.physicsMaterial2D unity-yaml
+*.physicMaterial unity-yaml
+*.playable unity-yaml
+*.prefab unity-yaml
+*.preset unity-yaml
+*.renderTexture unity-yaml
+*.scenetemplate unity-yaml
+*.shadervariants unity-yaml
+*.signal unity-yaml
+*.spriteatlas unity-yaml
+*.spriteatlasv2 unity-yaml
+*.terrainlayer unity-yaml
+*.unity unity-yaml
+
+# Unity repository metadata
+Assets/Plugins/** linguist-generated
+Packages/packages-lock.json linguist-generated
+LightingData.asset binary
