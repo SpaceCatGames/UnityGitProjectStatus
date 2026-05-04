@@ -1,6 +1,6 @@
 {
   "name": "scg.unity.gitprojectstatus",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "UnityGitProjectStatus",
   "description": "Lightweight Unity Editor overlays and tools that surface Git working tree changes inside the Project window.",
   "unity": "2021.3",

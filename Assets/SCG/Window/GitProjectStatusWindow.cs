@@ -311,23 +311,23 @@ namespace SCG.GitProjectStatus
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
 
+            var preferDisplayPath = !GitProjectStatusSettings.ShowMetaFiles;
+            var windowEntries = GetWindowEntries(currentSnapshot);
             var matchingEntriesCount = 0;
 
-            foreach (var entry in currentSnapshot.Entries)
+            foreach (var entry in windowEntries)
             {
-                if (!ShouldShowEntry(entry) || !MatchesPathSearch(entry))
-                {
+                if (!ShouldShowEntry(entry) || !MatchesPathSearch(entry, preferDisplayPath))
                     continue;
-                }
 
                 matchingEntriesCount++;
-                DrawEntry(entry);
+                DrawEntry(entry, preferDisplayPath);
             }
 
             if (matchingEntriesCount == 0)
             {
                 EditorGUILayout.LabelField(
-                    currentSnapshot.Entries.Count == 0
+                    windowEntries.Count == 0
                         ? NoChangedPathsText
                         : NoChangedPathsMatchSearchText);
             }

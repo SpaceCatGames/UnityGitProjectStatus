@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -54,7 +56,7 @@ namespace SCG.GitProjectStatus
                 GetFooterStyle(TextAnchor.MiddleRight, FontStyle.Normal));
         }
 
-        private static void DrawEntry(GitStatusEntry entry)
+        private static void DrawEntry(GitStatusEntry entry, bool preferDisplayPath)
         {
             var rowRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
             var badgeSize = rowRect.height - Constants.WindowBadgeVerticalInset * 2f;
@@ -81,7 +83,7 @@ namespace SCG.GitProjectStatus
                 badgeRect,
                 descriptor,
                 GitProjectStatusSettings.CalcMode);
-            EditorGUI.LabelField(labelRect, FormatEntryPath(entry), EditorStyles.miniLabel);
+            EditorGUI.LabelField(labelRect, FormatEntryPath(entry, preferDisplayPath), EditorStyles.miniLabel);
         }
 
         private static void SelectEntry(GitStatusEntry entry)
@@ -191,21 +193,41 @@ namespace SCG.GitProjectStatus
                 : expandedText;
         }
 
-        private static string FormatEntryPath(GitStatusEntry entry) =>
-            entry.Kind is GitStatusKind.Renamed or GitStatusKind.Copied &&
-            !string.IsNullOrEmpty(entry.OriginalPath)
-                ? $"{entry.OriginalPath}{PathTransitionSeparator}{entry.Path}"
-                : entry.Path;
+        private static string FormatEntryPath(GitStatusEntry entry, bool preferDisplayPath)
+        {
+            var path = GetEntryPath(entry, preferDisplayPath);
+            var originalPath = entry.OriginalPath;
 
-        private bool MatchesPathSearch(GitStatusEntry entry)
+            return entry.Kind is GitStatusKind.Renamed or GitStatusKind.Copied &&
+                   !string.IsNullOrEmpty(originalPath)
+                ? $"{originalPath}{PathTransitionSeparator}{path}"
+                : path;
+        }
+
+        private bool MatchesPathSearch(GitStatusEntry entry, bool preferDisplayPath)
         {
             var search = (pathSearch ?? string.Empty).Trim();
+            var path = GetEntryPath(entry, preferDisplayPath);
 
-            return string.IsNullOrEmpty(search) || FileNameMatches(entry.Path, search) ||
+            return string.IsNullOrEmpty(search) || FileNameMatches(path, search) ||
                    FileNameMatches(entry.OriginalPath, search);
         }
 
         private static bool ShouldShowEntry(GitStatusEntry entry) => GitProjectStatusSettings.ShowMetaFiles || !entry.IsMeta;
+
+        private static List<GitStatusEntry> GetWindowEntries(GitStatusSnapshot currentSnapshot) =>
+            GitProjectStatusSettings.ShowMetaFiles
+                ? currentSnapshot.Entries.ToList()
+                : currentSnapshot.AssetStatuses.Values
+                .Where(entry => !entry.IsFolderAggregate && !entry.IsDeleted && !entry.IsMeta)
+                .Concat(currentSnapshot.DeletedEntries.Where(entry => !entry.IsMeta))
+                .OrderBy(entry => GetEntryPath(entry, true), Comparer<string>.Create(GitPathComparer.Compare))
+                .ToList();
+
+        private static string GetEntryPath(GitStatusEntry entry, bool preferDisplayPath) =>
+            preferDisplayPath && !string.IsNullOrEmpty(entry.DisplayPath)
+                ? entry.DisplayPath
+                : entry.Path;
 
         private static bool FileNameMatches(string path, string search)
         {

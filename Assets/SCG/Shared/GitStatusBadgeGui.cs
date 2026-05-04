@@ -9,8 +9,6 @@ namespace SCG.GitProjectStatus
     /// </summary>
     internal static class GitStatusBadgeGui
     {
-        private const float SharedCalcModeContentOffsetX = 0.5f;
-
         private static GUIStyle s_badgeStyle;
 
         /// <summary>
@@ -22,7 +20,7 @@ namespace SCG.GitProjectStatus
         /// <param name="descriptor">Resolved status descriptor that defines content and colors.</param>
         /// <param name="calcMode">Whether symbolic Calc Mode marker content should be used.</param>
         internal static void Draw(Rect badgeRect, GitStatusDescriptor descriptor, bool calcMode) =>
-            Draw(badgeRect, descriptor, calcMode, GetSharedContentOffset(calcMode));
+            Draw(badgeRect, descriptor, calcMode, GitStatusBadgeLayout.GetCompactBadgeContentOffset(calcMode));
 
         /// <summary>
         /// Draws one Git badge inside the requested rect.
@@ -33,11 +31,14 @@ namespace SCG.GitProjectStatus
         /// <param name="descriptor">Resolved status descriptor that defines content and colors.</param>
         /// <param name="calcMode">Whether symbolic Calc Mode marker content should be used.</param>
         /// <param name="contentOffset">Optional offset applied when drawing marker content inside the badge.</param>
-        internal static void Draw(Rect badgeRect, GitStatusDescriptor descriptor, bool calcMode, Vector2 contentOffset)
+        internal static void Draw(Rect badgeRect, GitStatusDescriptor descriptor, bool calcMode, Vector2 contentOffset) =>
+            Draw(badgeRect, descriptor, GetBadgeContent(descriptor, calcMode), contentOffset);
+
+        private static void Draw(Rect badgeRect, GitStatusDescriptor descriptor, GUIContent content, Vector2 contentOffset)
         {
             EditorGUI.DrawRect(badgeRect, descriptor.BadgeColor);
             var style = GetBadgeStyle(badgeRect.height, descriptor.TextColor, contentOffset);
-            GUI.Label(badgeRect, calcMode ? descriptor.CalcContent : descriptor.DefaultContent, style);
+            GUI.Label(badgeRect, content, style);
         }
 
         /// <summary>
@@ -75,9 +76,7 @@ namespace SCG.GitProjectStatus
             return s_badgeStyle;
         }
 
-        private static Vector2 GetSharedContentOffset(bool calcMode) =>
-            calcMode
-                ? new Vector2(SharedCalcModeContentOffsetX, 0f)
-                : Vector2.zero;
+        private static GUIContent GetBadgeContent(GitStatusDescriptor descriptor, bool calcMode) =>
+            calcMode ? descriptor.CalcContent : descriptor.DefaultContent;
     }
 }

@@ -576,19 +576,29 @@ namespace SCG.GitProjectStatus
                 return;
 
             if (!assetStatuses.TryGetValue(assetPath, out var existing) ||
-                ShouldPreferNonMetaVisibleEntry(entry, existing) ||
-                GitStatusDescriptors.HasHigherPriority(entry.Kind, existing.Kind) ||
-                (entry.Kind == existing.Kind && existing.IsFolderAggregate && !entry.IsFolderAggregate))
+                ShouldReplaceVisibleEntry(entry, existing))
             {
                 assetStatuses[assetPath] = entry;
             }
         }
+
+        private static bool ShouldReplaceVisibleEntry(GitStatusEntry candidate, GitStatusEntry current) =>
+            !ShouldKeepCurrentNonMetaVisibleEntry(candidate, current) &&
+            (ShouldPreferNonMetaVisibleEntry(candidate, current) ||
+                   GitStatusDescriptors.HasHigherPriority(candidate.Kind, current.Kind) ||
+                   (candidate.Kind == current.Kind && current.IsFolderAggregate && !candidate.IsFolderAggregate));
 
         private static bool ShouldPreferNonMetaVisibleEntry(GitStatusEntry candidate, GitStatusEntry current) =>
             !candidate.IsFolderAggregate &&
             !current.IsFolderAggregate &&
             !candidate.IsMeta &&
             current.IsMeta;
+
+        private static bool ShouldKeepCurrentNonMetaVisibleEntry(GitStatusEntry candidate, GitStatusEntry current) =>
+            !candidate.IsFolderAggregate &&
+            !current.IsFolderAggregate &&
+            candidate.IsMeta &&
+            !current.IsMeta;
 
         private static void AddDeletedEntry(
             List<GitStatusEntry> deletedEntries,

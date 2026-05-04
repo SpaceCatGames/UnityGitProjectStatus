@@ -71,11 +71,7 @@ namespace SCG.GitProjectStatus
                 badgeRect,
                 descriptor,
                 GitProjectStatusSettings.CalcMode,
-                GitProjectStatusSettings.RightAlignedBadges
-                    ? Vector2.zero
-                    : new Vector2(
-                        Constants.OverlayIconCornerBadgeContentOffsetX,
-                        Constants.OverlayIconCornerBadgeContentOffsetY));
+                GitStatusBadgeLayout.GetProjectBadgeContentOffset(GitProjectStatusSettings.RightAlignedBadges));
         }
 
         private static Rect GetRightAlignedBadgeRect(Rect itemRect, bool isOneColumnLayout)

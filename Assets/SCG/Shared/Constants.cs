@@ -186,16 +186,31 @@ namespace SCG.GitProjectStatus
         public const float OverlayIconCornerBadgeOffsetY = -1f;
 
         /// <summary>Horizontal content offset used to visually center the glyph inside the compact icon-corner badge.</summary>
+#if UNITY_6000_0_OR_NEWER
+        public const float OverlayIconCornerBadgeContentOffsetX = 0f;
+#else
         public const float OverlayIconCornerBadgeContentOffsetX = 1f;
+#endif
 
         /// <summary>Vertical content offset used to visually center the glyph inside the compact icon-corner badge.</summary>
+#if UNITY_6000_0_OR_NEWER
+        public const float OverlayIconCornerBadgeContentOffsetY = 0f;
+#else
         public const float OverlayIconCornerBadgeContentOffsetY = -0.5f;
+#endif
 
-        /// <summary>Editor style name used by Unity for the large Inspector header.</summary>
-        public const string InspectorHeaderStyleName = "IN BigTitle";
+        /// <summary> 
+        /// Editor style name used by Unity for the large Inspector header.
+        /// m_InspectorBig = GetStyle("In BigTitle");
+        /// <see cref="UnityEditor.EditorStyle.inspectorBig"/>
+        /// </summary>
+        public const string InspectorHeaderStyleName = "In BigTitle";
 
         /// <summary>Editor style name used by Unity for the post-header background group in finishedDefaultHeaderGUI.</summary>
         public const string InspectorPostHeaderStyleName = "IN BigTitle Post";
+
+        /// <summary>Baseline post-header Y used by the default Inspector layout before optional extra rows shift the content down.</summary>
+        public const float InspectorPostHeaderBaselineY = 50f;
 
         /// <summary>Top and left content inset used by Unity DrawHeaderGUI for the large Inspector header icon.</summary>
         public const float InspectorHeaderContentInset = 6f;
@@ -222,10 +237,17 @@ namespace SCG.GitProjectStatus
         public const float InspectorHeaderBottomOverlap = 1f;
 
         /// <summary>Horizontal offset applied after anchoring the Inspector badge to the icon top-right corner.</summary>
-        public const float InspectorHeaderBadgeOffsetX = -1f;
+        public const float InspectorHeaderBadgeOffsetX = 0f;
 
         /// <summary>Vertical offset applied after anchoring the Inspector badge to the icon top-right corner.</summary>
-        public const float InspectorHeaderBadgeOffsetY = -13.5f;
+        public const float InspectorHeaderBadgeOffsetY = 9.5f;
+
+        /// <summary>Horizontal content offset used to align Calc Mode markers inside compact badges.</summary>
+#if UNITY_6000_0_OR_NEWER
+        public const float CompactBadgeCalcModeContentOffsetX = 0f;
+#else
+        public const float CompactBadgeCalcModeContentOffsetX = 0.25f;
+#endif
 
         /// <summary>Horizontal gap between the status badge and the path label in the package window list.</summary>
         public const float WindowBadgeHorizontalSpacing = 6f;

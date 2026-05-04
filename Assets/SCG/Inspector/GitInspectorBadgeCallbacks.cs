@@ -35,36 +35,11 @@ namespace SCG.GitProjectStatus
 
             if (entry == null ||
                 entry.Kind == GitStatusKind.None ||
-                !TryGetInspectorHeaderRect(postHeaderContentRect, out var headerRect))
+                !GitStatusBadgeLayout.TryGetInspectorHeaderRect(postHeaderContentRect, out var headerRect))
                 return;
 
             var descriptor = GitStatusDescriptors.Get(entry.Kind);
             GitStatusBadgeGui.Draw(GetInspectorBadgeRect(headerRect), descriptor, GitProjectStatusSettings.CalcMode);
-        }
-
-        private static bool TryGetInspectorHeaderRect(Rect postHeaderContentRect, out Rect headerRect)
-        {
-            if (postHeaderContentRect.width <= 0f)
-            {
-                headerRect = default;
-                return false;
-            }
-
-            var inspectorHeaderStyle = GUI.skin.FindStyle(Constants.InspectorHeaderStyleName) ?? GUIStyle.none;
-            var postHeaderStyle = GUI.skin.FindStyle(Constants.InspectorPostHeaderStyleName) ?? GUIStyle.none;
-            var headerHeight = GetInspectorHeaderHeight();
-            var headerBottom = postHeaderContentRect.y - postHeaderStyle.padding.top +
-                               Constants.InspectorHeaderBottomOverlap +
-                               inspectorHeaderStyle.margin.bottom +
-                               inspectorHeaderStyle.padding.bottom +
-                               inspectorHeaderStyle.overflow.bottom;
-
-            headerRect = new Rect(
-                postHeaderContentRect.x - postHeaderStyle.padding.left,
-                headerBottom - headerHeight,
-                postHeaderContentRect.width + postHeaderStyle.padding.horizontal,
-                headerHeight);
-            return headerRect is { width: > 0f, height: > 0f };
         }
 
         private static Rect GetInspectorBadgeRect(Rect headerRect)
@@ -164,10 +139,5 @@ namespace SCG.GitProjectStatus
 
             return false;
         }
-
-        private static float GetInspectorHeaderHeight() =>
-            Mathf.Max(
-                Constants.InspectorHeaderImageSectionWidthFallback,
-                Constants.InspectorHeaderTitleHeightFallback + Constants.InspectorHeaderContentInset * 2f);
     }
 }
