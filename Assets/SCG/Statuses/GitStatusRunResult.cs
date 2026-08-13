@@ -1,4 +1,4 @@
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Represents the raw result of a Git status refresh run.

@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Handles Project window row callbacks for badge and footer drawing.
@@ -22,7 +22,7 @@ namespace SCG.GitProjectStatus
         {
             if (EditorApplication.isCompiling ||
                 AssetDatabase.IsAssetImportWorkerProcess() ||
-                !GitProjectStatusSettings.ProjectOverlaysEnabled ||
+                !UnityGitStatusSettings.ProjectOverlaysEnabled ||
                 !GitStatusCache.RepositoryDetected ||
                 string.IsNullOrEmpty(guid))
                 return;
@@ -57,21 +57,21 @@ namespace SCG.GitProjectStatus
         private static bool ShouldDrawProjectBadge(bool hasProjectBrowserContext, ProjectBrowserContext context) =>
             !hasProjectBrowserContext ||
             !context.IsTwoColumns ||
-            GitProjectStatusSettings.ShowLeftPaneOverlaysInTwoColumn ||
+            UnityGitStatusSettings.ShowLeftPaneOverlaysInTwoColumn ||
             !context.IsTreePane;
 
         private static void DrawProjectBadge(Rect itemRect, GitStatusKind kind, bool isOneColumnLayout)
         {
             var descriptor = GitStatusDescriptors.Get(kind);
-            var badgeRect = GitProjectStatusSettings.RightAlignedBadges
+            var badgeRect = UnityGitStatusSettings.RightAlignedBadges
                 ? GetRightAlignedBadgeRect(itemRect, isOneColumnLayout)
                 : GetIconCornerBadgeRect(itemRect);
 
             GitStatusBadgeGui.Draw(
                 badgeRect,
                 descriptor,
-                GitProjectStatusSettings.CalcMode,
-                GitStatusBadgeLayout.GetProjectBadgeContentOffset(GitProjectStatusSettings.RightAlignedBadges));
+                UnityGitStatusSettings.CalcMode,
+                GitStatusBadgeLayout.GetProjectBadgeContentOffset(UnityGitStatusSettings.RightAlignedBadges));
         }
 
         private static Rect GetRightAlignedBadgeRect(Rect itemRect, bool isOneColumnLayout)

@@ -1,12 +1,13 @@
-# Unity Git Project Status
+# Unity Git Status
 
-SCG Git Project Status is a lightweight Unity Editor package that shows Git working tree changes directly inside the Project window and the primary Inspector header.
+uGitStatus provides lightweight Git status tools for Unity Editor. See file states in Project and Inspector, review diffs line by line, and stage, unstage, or revert selected changes.
 
-The package focuses on one job:
+The package focuses on keeping repository state visible while you work:
 
 - draw compact badges for changed assets and folders under `Assets/`,
-- expose the current branch in a small editor window,
-- stay editor-only and avoid Git client features that do not belong in this workflow.
+- expose the current branch and changed paths in a small editor window.
+
+The Git Status window also includes an optional unified diff for reviewing staged and unstaged changes and applying focused stage, unstage, or revert actions without turning the package into a full Git client.
 
 ## Features
 
@@ -21,14 +22,18 @@ The package focuses on one job:
 - Remaps `.meta` changes to the visible asset or folder whenever possible.
 - Shows deleted paths for the active Project folder in a dedicated footer inside the Project window.
 - Coalesces refresh requests so repeated editor events do not spawn overlapping Git processes.
+- Opens a resizable unified diff when a changed file is selected.
+- Stages and unstages selected lines through checked Git patches.
+- Reverts selected unstaged lines after explicit confirmation.
+- Falls back to whole-file actions for new, deleted, binary, renamed, and copied files.
 
-## What It Does Not Do
+## Git Operation Scope
 
-This package is not a Git client.
+uGitStatus does not replace a full Git client. It complements your regular Git workflow by keeping repository status visible and making common staging, unstaging, and revert actions quicker to perform directly in Unity.
 
-It intentionally does not implement staging, committing, reverting, discarding, branching, pushing, pulling, fetching, stash management, history browsing, merge tools, or any other repository mutation workflow.
+uGitStatus intentionally limits repository mutations to staging, unstaging, and reverting the selected file or text lines. It does not commit, branch, push, pull, fetch, stash, browse history, or resolve merges.
 
-Use your regular Git client for repository operations. This package only surfaces status information inside Unity.
+Revert permanently discards local working-tree changes and always requires confirmation. New, deleted, binary, renamed, and copied files use whole-file actions because a reliable line-level patch is not available for those cases.
 
 ## Requirements
 
@@ -45,7 +50,7 @@ Use your regular Git client for repository operations. This package only surface
 
 Add the package through Package Manager or `Packages/manifest.json`:
 
-`https://github.com/SpaceCatGames/UnityGitProjectStatus.git?path=Assets/SCG`
+`https://github.com/SpaceCatGames/uGitStatus.git?path=Assets/SCG`
 
 ### Local package
 
@@ -54,15 +59,20 @@ Add the package through Package Manager or `Packages/manifest.json`:
 
 ## Usage
 
-- Open the window from `SCG > Git Project Status > Project Status Window` or press `Alt + G` (`Option + G` on macOS).
-- Refresh manually from `SCG > Git Project Status > Refresh`.
-- Use `SCG > Git Project Status > Refresh Mode` to switch between `Manual Only`, `Timed`, and `Event-Driven`.
-- Use `SCG > Git Project Status > Badge Settings > Project > Enable Project Overlays` to turn Project badges on or off.
-- Use `SCG > Git Project Status > Badge Settings > Inspector > Enable Inspector Badge` to show or hide the Inspector header badge for the currently inspected persistent asset or folder.
-- Use `SCG > Git Project Status > Badge Settings > Appearance > Calc Mode` to swap letter markers for symbol markers.
-- Use `SCG > Git Project Status > Badge Settings > Project > Right-Aligned Badges` to switch between the default right-aligned Project placement and Icon-corner Project badges near the asset icon.
-- Use `SCG > Git Project Status > Badge Settings > Project > Deleted Files in Project` to show or hide the deleted footer in the Project window.
-- Use `SCG > Git Project Status > Badge Settings > Project > Left Pane Overlays in Two Column` to control left-pane badges in two-column Project layout.
+- Open the window from `SCG > uGitStatus > Git Status Window` or press `Alt + G` (`Option + G` on macOS).
+- Select a changed path to open its staged and unstaged unified diff in the resizable right panel.
+- Use the changed-path sorting menu to order entries by path, file name, or Git status.
+- With a changed path selected and the Git Status window focused, use the Up and Down arrow keys to select the previous or next visible file.
+- Select changed lines and use `Stage selected`, `Unstage selected`, or `Revert selected`.
+- Set `Context lines` from `1` to `20` to control how many unchanged lines appear before and after each change; the default is `5`.
+- Refresh manually from `SCG > uGitStatus > Refresh`.
+- Use `SCG > uGitStatus > Refresh Mode` to switch between `Manual Only`, `Timed`, and `Event-Driven`.
+- Use `SCG > uGitStatus > Badge Settings > Project > Enable Project Overlays` to turn Project badges on or off.
+- Use `SCG > uGitStatus > Badge Settings > Inspector > Enable Inspector Badge` to show or hide the Inspector header badge for the currently inspected persistent asset or folder.
+- Use `SCG > uGitStatus > Badge Settings > Appearance > Calc Mode` to swap letter markers for symbol markers.
+- Use `SCG > uGitStatus > Badge Settings > Project > Right-Aligned Badges` to switch between the default right-aligned Project placement and Icon-corner Project badges near the asset icon.
+- Use `SCG > uGitStatus > Badge Settings > Project > Deleted Files in Project` to show or hide the deleted footer in the Project window.
+- Use `SCG > uGitStatus > Badge Settings > Project > Left Pane Overlays in Two Column` to control left-pane badges in two-column Project layout.
 
 ## Screenshots
 
@@ -88,9 +98,9 @@ Shows right-aligned Project badges together with the deleted-paths footer for th
 
 ### Badge settings menu
 
-[<img src="Screenshots/Screenshot_4.png" alt="SCG Git Project Status menu with Refresh, Refresh Mode, Badge Settings, and Project Status Window entries." width="100%">](Screenshots/Screenshot_4.png)
+[<img src="Screenshots/Screenshot_4.png" alt="uGitStatus menu with Refresh, Refresh Mode, Badge Settings, and Git Status Window entries." width="100%">](Screenshots/Screenshot_4.png)
 
-Shows the top-level menu structure for refresh actions, badge settings groups, and the Project Status Window command.
+Shows the top-level menu structure for refresh actions, badge settings groups, and the Git Status Window command.
 
 The status window shows:
 
@@ -155,7 +165,9 @@ When Git reports deleted paths under the currently opened Unity folder, the pack
 
 The footer can be collapsed so it does not get in the way, and deleted file paths are no longer duplicated in a separate `Deleted Files` section inside the status window.
 
-There is no restore or checkout action in the package.
+Tracked deleted files can be restored from the Git Status window with `Revert file` after explicit confirmation.
+If the deletion is staged, use `Unstage file` first; `Revert file` becomes available after the deletion returns to the unstaged state.
+The Project-window footer itself remains status-only and does not expose restore or checkout actions.
 
 ## Design Notes
 

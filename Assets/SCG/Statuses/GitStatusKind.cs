@@ -1,4 +1,4 @@
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Represents the normalized Git status kinds used by overlays and the status window.

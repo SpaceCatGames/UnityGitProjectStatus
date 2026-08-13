@@ -1,4 +1,4 @@
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Stores reflection names used to bridge Unity internal editor APIs.

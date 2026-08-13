@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Stores the immutable Git status state shared by overlays and the status window.

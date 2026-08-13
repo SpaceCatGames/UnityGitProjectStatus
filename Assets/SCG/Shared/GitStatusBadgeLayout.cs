@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Provides shared badge layout helpers for editor rendering.

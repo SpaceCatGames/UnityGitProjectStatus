@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Draws compact badge visuals shared by Project, Inspector, and the status window.

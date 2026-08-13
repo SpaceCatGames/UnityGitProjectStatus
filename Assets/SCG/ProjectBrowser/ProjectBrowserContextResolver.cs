@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Resolves the active Project Browser instance and pane geometry for overlay callbacks.
@@ -552,7 +552,7 @@ namespace SCG.GitProjectStatus
             }
 
             s_loggedProjectBrowserReflectionFailure = true;
-            Debug.LogWarning("[" + nameof(GitProjectStatus) + "]" + ": ProjectBrowser reflection failed. " + exception.Message);
+            Debug.LogWarning("[" + nameof(UnityGitStatus) + "]" + ": ProjectBrowser reflection failed. " + exception.Message);
         }
 
         #endregion

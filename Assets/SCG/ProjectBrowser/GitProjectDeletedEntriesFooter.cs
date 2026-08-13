@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Draws the deleted-files footer inside the Project window when space allows it.
@@ -32,7 +32,7 @@ namespace SCG.GitProjectStatus
         /// <param name="context">Resolved Project Browser geometry and pane metadata.</param>
         internal static void Draw(Rect selectionRect, bool hasProjectBrowserContext, ProjectBrowserContext context)
         {
-            if (!GitProjectStatusSettings.ShowDeletedFilesInProject ||
+            if (!UnityGitStatusSettings.ShowDeletedFilesInProject ||
                 !IsRelevantProjectEvent(Event.current.type) ||
                 !hasProjectBrowserContext ||
                 !context.IsTwoColumns ||
@@ -59,7 +59,7 @@ namespace SCG.GitProjectStatus
                 return;
             }
 
-            var isExpanded = GitProjectStatusSettings.ShowProjectDeletedEntries;
+            var isExpanded = UnityGitStatusSettings.ShowProjectDeletedEntries;
             var availableHeight = GetAvailableFooterHeight(context);
             CalculateFooterRows(
                 deletedEntries.Count,
@@ -90,16 +90,16 @@ namespace SCG.GitProjectStatus
 
             var nextExpanded = EditorGUI.Foldout(
                 headerRect,
-                GitProjectStatusSettings.ShowProjectDeletedEntries,
+                UnityGitStatusSettings.ShowProjectDeletedEntries,
                 GetDeletedFooterHeaderText(contextFolderPath, deletedEntries.Count),
                 true);
 
-            if (nextExpanded != GitProjectStatusSettings.ShowProjectDeletedEntries)
+            if (nextExpanded != UnityGitStatusSettings.ShowProjectDeletedEntries)
             {
-                GitProjectStatusSettings.ShowProjectDeletedEntries = nextExpanded;
+                UnityGitStatusSettings.ShowProjectDeletedEntries = nextExpanded;
             }
 
-            if (!GitProjectStatusSettings.ShowProjectDeletedEntries)
+            if (!UnityGitStatusSettings.ShowProjectDeletedEntries)
             {
                 return;
             }
@@ -140,7 +140,7 @@ namespace SCG.GitProjectStatus
         private static string GetDeletedFooterHeaderText(string activeFolderPath, int deletedEntryCount)
         {
             var folderName = GetFileName(activeFolderPath);
-            var actionText = GitProjectStatusSettings.ShowProjectDeletedEntries ? "Hide" : "Show";
+            var actionText = UnityGitStatusSettings.ShowProjectDeletedEntries ? "Hide" : "Show";
             return $"{actionText} deleted files in {folderName} ({deletedEntryCount})";
         }
 

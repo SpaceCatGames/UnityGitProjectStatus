@@ -1,8 +1,8 @@
 {
-  "name": "scg.unity.gitprojectstatus",
-  "version": "1.0.1",
-  "displayName": "UnityGitProjectStatus",
-  "description": "Lightweight Unity Editor overlays and tools that surface Git working tree changes inside the Project window.",
+  "name": "scg.unity.ugitstatus",
+  "version": "2.0.0",
+  "displayName": "Unity Git Status",
+  "description": "Lightweight Git status tools for Unity Editor. See file states in Project and Inspector, review diffs line by line, and stage, unstage, or revert selected changes.",
   "unity": "2021.3",
   "category": "Tools",
   "author": {

@@ -1,4 +1,4 @@
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Represents a single normalized Git status entry tracked by the package.
@@ -14,6 +14,12 @@ namespace SCG.GitProjectStatus
 
         /// <summary>Normalized source path used by rename and copy records.</summary>
         public string OriginalPath { get; }
+
+        /// <summary>Repository-relative path reported by Git before Unity-project path remapping.</summary>
+        internal string RepositoryPath { get; }
+
+        /// <summary>Repository-relative source path reported by Git for rename and copy records.</summary>
+        internal string OriginalRepositoryPath { get; }
 
         /// <summary>Simplified status classification used by the package UI.</summary>
         public GitStatusKind Kind { get; }
@@ -52,9 +58,35 @@ namespace SCG.GitProjectStatus
             bool isMeta,
             bool isFolderAggregate,
             string displayPath)
+            : this(path, originalPath, kind, isMeta, isFolderAggregate, displayPath, path, originalPath)
+        {
+        }
+
+        /// <summary>
+        /// Creates an immutable Git status entry while preserving both Unity-project and repository-relative paths.
+        /// </summary>
+        /// <param name="path">Project-relative path used by Unity-facing UI.</param>
+        /// <param name="originalPath">Project-relative source path used by rename and copy records.</param>
+        /// <param name="kind">Simplified Git status classification.</param>
+        /// <param name="isMeta">Whether the record points to a Unity meta file.</param>
+        /// <param name="isFolderAggregate">Whether the record is an aggregated folder status.</param>
+        /// <param name="displayPath">Visible Unity path used by overlays and the status window.</param>
+        /// <param name="repositoryPath">Path relative to the repository root.</param>
+        /// <param name="originalRepositoryPath">Source path relative to the repository root.</param>
+        internal GitStatusEntry(
+            string path,
+            string originalPath,
+            GitStatusKind kind,
+            bool isMeta,
+            bool isFolderAggregate,
+            string displayPath,
+            string repositoryPath,
+            string originalRepositoryPath)
         {
             Path = NormalizePath(path);
             OriginalPath = NormalizePath(originalPath);
+            RepositoryPath = NormalizePath(repositoryPath);
+            OriginalRepositoryPath = NormalizePath(originalRepositoryPath);
             Kind = kind;
             IsMeta = isMeta;
             IsFolderAggregate = isFolderAggregate;
@@ -74,7 +106,15 @@ namespace SCG.GitProjectStatus
         /// <param name="isFolderAggregate">Whether the resulting entry should be treated as a folder aggregate.</param>
         /// <returns>A new immutable entry carrying the updated display metadata.</returns>
         public GitStatusEntry WithDisplayPath(string displayPath, bool isFolderAggregate) =>
-            new(Path, OriginalPath, Kind, IsMeta, isFolderAggregate, displayPath);
+            new(
+                Path,
+                OriginalPath,
+                Kind,
+                IsMeta,
+                isFolderAggregate,
+                displayPath,
+                RepositoryPath,
+                OriginalRepositoryPath);
 
         #endregion
 

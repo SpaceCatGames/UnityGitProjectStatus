@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Bootstraps the package when Unity loads the editor domain.
@@ -8,9 +8,9 @@ namespace SCG.GitProjectStatus
     /// Import worker processes are excluded because they should not draw editor UI.
     /// </summary>
     [InitializeOnLoad]
-    internal static class GitProjectStatus
+    internal static class UnityGitStatus
     {
-        static GitProjectStatus()
+        static UnityGitStatus()
         {
             if (AssetDatabase.IsAssetImportWorkerProcess())
                 return;

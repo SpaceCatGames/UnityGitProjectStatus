@@ -1,4 +1,4 @@
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Describes the Inspector callback context used to decide whether a badge should be drawn.

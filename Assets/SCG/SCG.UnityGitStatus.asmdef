@@ -1,6 +1,6 @@
 {
-    "name": "SCG.GitProjectStatus",
-    "rootNamespace": "SCG.GitProjectStatus",
+    "name": "SCG.UnityGitStatus",
+    "rootNamespace": "SCG.UnityGitStatus",
     "references": [],
     "includePlatforms": [
         "Editor"

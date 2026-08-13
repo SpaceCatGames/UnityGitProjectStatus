@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Provides path comparison helpers that follow the current editor platform file system semantics.

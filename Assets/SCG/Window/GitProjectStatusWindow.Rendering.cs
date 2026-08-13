@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <inheritdoc/>
     internal sealed partial class GitProjectStatusWindow
@@ -56,7 +56,7 @@ namespace SCG.GitProjectStatus
                 GetFooterStyle(TextAnchor.MiddleRight, FontStyle.Normal));
         }
 
-        private static void DrawEntry(GitStatusEntry entry, bool preferDisplayPath)
+        private void DrawEntry(GitStatusEntry entry, bool preferDisplayPath)
         {
             var rowRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
             var badgeSize = rowRect.height - Constants.WindowBadgeVerticalInset * 2f;
@@ -73,30 +73,84 @@ namespace SCG.GitProjectStatus
 
             EditorGUIUtility.AddCursorRect(rowRect, MouseCursor.Link);
 
-            if (GUI.Button(rowRect, GUIContent.none, GUIStyle.none))
+            if (GitPathComparer.AreEqual(selectedPath, entry.Path))
             {
+                EditorGUI.DrawRect(rowRect, new Color(0.2f, 0.45f, 0.75f, 0.28f));
+
+                if (scrollToSelectedEntry)
+                {
+                    GUI.ScrollTo(rowRect);
+                    scrollToSelectedEntry = false;
+                }
+            }
+
+            var currentEvent = Event.current;
+
+            if (currentEvent.type == EventType.MouseDown &&
+                currentEvent.button == 0 &&
+                rowRect.Contains(currentEvent.mousePosition))
+            {
+                GUI.FocusControl(null);
                 SelectEntry(entry);
+
+                if (currentEvent.clickCount >= 2)
+                {
+                    SelectEntryInProject(entry);
+                }
+
+                currentEvent.Use();
             }
 
             var descriptor = GitStatusDescriptors.Get(entry.Kind);
             GitStatusBadgeGui.Draw(
                 badgeRect,
                 descriptor,
-                GitProjectStatusSettings.CalcMode);
+                UnityGitStatusSettings.CalcMode);
             EditorGUI.LabelField(labelRect, FormatEntryPath(entry, preferDisplayPath), EditorStyles.miniLabel);
         }
 
-        private static void SelectEntry(GitStatusEntry entry)
+        private void SelectEntry(GitStatusEntry entry)
+        {
+            selectedEntry = entry;
+            selectedPath = entry.Path;
+            operationMessage = string.Empty;
+            operationMessageClearAt = 0d;
+            LoadSelectedDiffs();
+        }
+
+        private void HandleEntryKeyboardNavigation(
+            IReadOnlyList<GitStatusEntry> entries,
+            bool preferDisplayPath)
+        {
+            var currentEvent = Event.current;
+            if (focusedWindow != this || currentEvent.type != EventType.KeyDown ||
+                EditorGUIUtility.editingTextField || selectedEntry == null ||
+                currentEvent.alt || currentEvent.control || currentEvent.command ||
+                currentEvent.keyCode is not (KeyCode.UpArrow or KeyCode.DownArrow)) return;
+
+            var visibleEntries = entries
+                .Where(entry => ShouldShowEntry(entry) && MatchesPathSearch(entry, preferDisplayPath))
+                .ToList();
+            var selectedIndex = visibleEntries.FindIndex(entry => GitPathComparer.AreEqual(entry.Path, selectedPath));
+            if (selectedIndex < 0) return;
+
+            var offset = currentEvent.keyCode == KeyCode.UpArrow ? -1 : 1;
+            var nextIndex = Mathf.Clamp(selectedIndex + offset, 0, visibleEntries.Count - 1);
+            if (nextIndex == selectedIndex) return;
+
+            SelectEntry(visibleEntries[nextIndex]);
+            scrollToSelectedEntry = true;
+            currentEvent.Use();
+            Repaint();
+        }
+
+        private static void SelectEntryInProject(GitStatusEntry entry)
         {
             var selectionPath = GetSelectionPath(entry);
-
-            if (string.IsNullOrEmpty(selectionPath))
-                return;
+            if (string.IsNullOrEmpty(selectionPath)) return;
 
             var selectedObject = AssetDatabase.LoadMainAssetAtPath(selectionPath);
-
-            if (selectedObject == null)
-                return;
+            if (selectedObject == null) return;
 
             Selection.activeObject = selectedObject;
             EditorGUIUtility.PingObject(selectedObject);
@@ -213,16 +267,19 @@ namespace SCG.GitProjectStatus
                    FileNameMatches(entry.OriginalPath, search);
         }
 
-        private static bool ShouldShowEntry(GitStatusEntry entry) => GitProjectStatusSettings.ShowMetaFiles || !entry.IsMeta;
+        private static bool ShouldShowEntry(GitStatusEntry entry) => UnityGitStatusSettings.ShowMetaFiles || !entry.IsMeta;
 
-        private static List<GitStatusEntry> GetWindowEntries(GitStatusSnapshot currentSnapshot) =>
-            GitProjectStatusSettings.ShowMetaFiles
-                ? currentSnapshot.Entries.ToList()
+        private static List<GitStatusEntry> GetWindowEntries(
+            GitStatusSnapshot currentSnapshot,
+            bool preferDisplayPath)
+        {
+            var entries = UnityGitStatusSettings.ShowMetaFiles
+                ? currentSnapshot.Entries
                 : currentSnapshot.AssetStatuses.Values
-                .Where(entry => !entry.IsFolderAggregate && !entry.IsDeleted && !entry.IsMeta)
-                .Concat(currentSnapshot.DeletedEntries.Where(entry => !entry.IsMeta))
-                .OrderBy(entry => GetEntryPath(entry, true), Comparer<string>.Create(GitPathComparer.Compare))
-                .ToList();
+                    .Where(entry => !entry.IsFolderAggregate && !entry.IsDeleted && !entry.IsMeta)
+                    .Concat(currentSnapshot.DeletedEntries.Where(entry => !entry.IsMeta));
+            return GitStatusEntrySorter.Sort(entries, UnityGitStatusSettings.StatusSortMode, preferDisplayPath);
+        }
 
         private static string GetEntryPath(GitStatusEntry entry, bool preferDisplayPath) =>
             preferDisplayPath && !string.IsNullOrEmpty(entry.DisplayPath)

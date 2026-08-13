@@ -1,0 +1,13 @@
+{
+    "name": "SCG.UnityGitStatus.Editor.Tests",
+    "rootNamespace": "SCG.UnityGitStatus.Tests",
+    "references": [
+        "GUID:7dd2befbbe7efd84fa734eae444febf4"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

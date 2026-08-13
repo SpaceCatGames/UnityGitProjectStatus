@@ -6,7 +6,7 @@ using UnityEditor.Compilation;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Caches the current Git status snapshot used by overlays and the status window.
@@ -67,6 +67,9 @@ namespace SCG.GitProjectStatus
 
         /// <summary>Gets whether the latest snapshot corresponds to a detected Git repository.</summary>
         public static bool RepositoryDetected => Snapshot.RepositoryDetected;
+
+        /// <summary>Gets the repository root associated with the latest successful snapshot.</summary>
+        internal static string RepositoryRoot { get; private set; } = string.Empty;
 
         /// <summary>
         /// Resolves the visible status entry associated with a Unity asset path.
@@ -173,8 +176,8 @@ namespace SCG.GitProjectStatus
 
         private static void InitializeRefreshSettingsState()
         {
-            lastObservedRefreshMode = GitProjectStatusSettings.RefreshMode;
-            lastTimedRefreshIntervalSeconds = GitProjectStatusSettings.TimedRefreshIntervalSeconds;
+            lastObservedRefreshMode = UnityGitStatusSettings.RefreshMode;
+            lastTimedRefreshIntervalSeconds = UnityGitStatusSettings.TimedRefreshIntervalSeconds;
             wasEditorApplicationActive = InternalEditorUtility.isApplicationActive;
             nextTimedRefreshAt = lastObservedRefreshMode == GitRefreshMode.Timed
                 ? EditorApplication.timeSinceStartup + lastTimedRefreshIntervalSeconds
@@ -183,8 +186,8 @@ namespace SCG.GitProjectStatus
 
         private static void TrackRefreshSettings()
         {
-            var refreshMode = GitProjectStatusSettings.RefreshMode;
-            var timedRefreshIntervalSeconds = GitProjectStatusSettings.TimedRefreshIntervalSeconds;
+            var refreshMode = UnityGitStatusSettings.RefreshMode;
+            var timedRefreshIntervalSeconds = UnityGitStatusSettings.TimedRefreshIntervalSeconds;
 
             if (refreshMode != lastObservedRefreshMode)
             {
@@ -354,6 +357,9 @@ namespace SCG.GitProjectStatus
             }
             finally
             {
+                RepositoryRoot = Snapshot.RepositoryDetected
+                    ? result.RunResult?.RepositoryRoot ?? string.Empty
+                    : string.Empty;
                 IsRefreshInProgress = false;
                 RaiseStatusChanged();
             }
@@ -482,7 +488,9 @@ namespace SCG.GitProjectStatus
                     entry.Kind,
                     GitStatusEntry.IsMetaPath(path) || GitStatusEntry.IsMetaPath(originalPath),
                     false,
-                    path);
+                    path,
+                    entry.RepositoryPath,
+                    entry.OriginalRepositoryPath);
         }
 
         private static string NormalizeRepoPathToUnityProjectPath(string repoRelativePath, string projectPathInRepository)
@@ -775,7 +783,7 @@ namespace SCG.GitProjectStatus
 
         private static void ScheduleEventDrivenRefresh(string reason)
         {
-            if (GitProjectStatusSettings.RefreshMode == GitRefreshMode.EventDriven)
+            if (UnityGitStatusSettings.RefreshMode == GitRefreshMode.EventDriven)
                 ScheduleRefresh(reason);
         }
 

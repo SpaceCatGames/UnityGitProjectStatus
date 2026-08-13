@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Stores the resolved Project Browser geometry and layout metadata for one GUI callback.

@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Displays the current Git status snapshot inside a compact Unity Editor window.
@@ -20,6 +20,8 @@ namespace SCG.GitProjectStatus
         private const string RefreshModeTooltip = "Choose how Git status refreshes inside the editor.";
         private const string ShowMetaFilesLabel = "Show meta files";
         private const string ShowMetaFilesTooltip = "Include Unity .meta files in the Changed Paths list.";
+        private const string DiffContextLinesLabel = "Context lines";
+        private const string DiffContextLinesTooltip = "Number of unchanged lines shown before and after each diff change.";
         private const string ShowDeletedFilesInProjectLabel = "Deleted files in Project";
         private const string ShowDeletedFilesInProjectTooltip = "Show or hide the deleted files footer at the bottom of the Project window.";
         private const string RightAlignedBadgesLabel = "Right-aligned badges";
@@ -58,6 +60,7 @@ namespace SCG.GitProjectStatus
         private const float ShowDeletedFilesToggleWidth = 190f;
         private const float ShowLeftPaneOverlaysToggleWidth = 220f;
         private const float RefreshModePopupMaxWidth = 144f;
+        private const float SortModePopupMaxWidth = 149f;
         private const float PreChangesSpacing = 8f;
         private const int ChangesSectionHeaderFontSizeDelta = 3;
         private const int ChangedPathsSectionHeaderFontSizeDelta = 1;
@@ -81,6 +84,10 @@ namespace SCG.GitProjectStatus
         private static readonly GUIContent s_showMetaFilesContent = new(
             ShowMetaFilesLabel,
             ShowMetaFilesTooltip);
+
+        private static readonly GUIContent s_diffContextLinesContent = new(
+            DiffContextLinesLabel,
+            DiffContextLinesTooltip);
 
         private static readonly GUIContent s_showDeletedFilesInProjectContent = new(
             ShowDeletedFilesInProjectLabel,
@@ -123,10 +130,20 @@ namespace SCG.GitProjectStatus
                 EventDrivenRefreshModeTooltip)
         };
 
+        private static readonly GUIContent[] s_sortModeOptions =
+        {
+            new(Constants.SortByPathAscendingLabel, Constants.SortModeTooltip),
+            new(Constants.SortByPathDescendingLabel, Constants.SortModeTooltip),
+            new(Constants.SortByFileNameAscendingLabel, Constants.SortModeTooltip),
+            new(Constants.SortByFileNameDescendingLabel, Constants.SortModeTooltip),
+            new(Constants.SortByFileStatusLabel, Constants.SortModeTooltip)
+        };
+
         private Vector2 scrollPosition;
         private GUIStyle changesSectionHeaderStyle;
         private GUIStyle changedPathsSectionHeaderStyle;
         private string pathSearch = string.Empty;
+        private bool scrollToSelectedEntry;
 
         #endregion
 
@@ -144,6 +161,19 @@ namespace SCG.GitProjectStatus
             GitStatusCache.StatusChanged -= Repaint;
         }
 
+        private void OnInspectorUpdate()
+        {
+            if (operationMessageClearAt <= 0d ||
+                EditorApplication.timeSinceStartup < operationMessageClearAt)
+            {
+                return;
+            }
+
+            operationMessage = string.Empty;
+            operationMessageClearAt = 0d;
+            Repaint();
+        }
+
         private void OnGUI()
         {
             var currentSnapshot = GitStatusCache.Snapshot;
@@ -156,7 +186,7 @@ namespace SCG.GitProjectStatus
                     GitStatusCache.RefreshNow();
                 }
 
-                var projectOverlaysEnabled = GitProjectStatusSettings.ProjectOverlaysEnabled;
+                var projectOverlaysEnabled = UnityGitStatusSettings.ProjectOverlaysEnabled;
                 var nextProjectOverlaysEnabled = EditorGUILayout.ToggleLeft(
                     s_projectOverlaysContent,
                     projectOverlaysEnabled,
@@ -164,10 +194,10 @@ namespace SCG.GitProjectStatus
 
                 if (nextProjectOverlaysEnabled != projectOverlaysEnabled)
                 {
-                    GitProjectStatusSettings.ProjectOverlaysEnabled = nextProjectOverlaysEnabled;
+                    UnityGitStatusSettings.ProjectOverlaysEnabled = nextProjectOverlaysEnabled;
                 }
 
-                var inspectorBadgeEnabled = GitProjectStatusSettings.InspectorBadgeEnabled;
+                var inspectorBadgeEnabled = UnityGitStatusSettings.InspectorBadgeEnabled;
                 var nextInspectorBadgeEnabled = EditorGUILayout.ToggleLeft(
                     s_inspectorBadgeContent,
                     inspectorBadgeEnabled,
@@ -175,13 +205,13 @@ namespace SCG.GitProjectStatus
 
                 if (nextInspectorBadgeEnabled != inspectorBadgeEnabled)
                 {
-                    GitProjectStatusSettings.InspectorBadgeEnabled = nextInspectorBadgeEnabled;
+                    UnityGitStatusSettings.InspectorBadgeEnabled = nextInspectorBadgeEnabled;
                 }
 
                 GUILayout.FlexibleSpace();
             }
 
-            if (GitProjectStatusSettings.ProjectOverlaysEnabled || GitProjectStatusSettings.InspectorBadgeEnabled)
+            if (UnityGitStatusSettings.ProjectOverlaysEnabled || UnityGitStatusSettings.InspectorBadgeEnabled)
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -189,19 +219,19 @@ namespace SCG.GitProjectStatus
 
                     var nextCalcMode = EditorGUILayout.ToggleLeft(
                         s_calcModeContent,
-                        GitProjectStatusSettings.CalcMode,
+                        UnityGitStatusSettings.CalcMode,
                         GUILayout.Width(CalcModeToggleWidth));
 
-                    if (nextCalcMode != GitProjectStatusSettings.CalcMode)
+                    if (nextCalcMode != UnityGitStatusSettings.CalcMode)
                     {
-                        GitProjectStatusSettings.CalcMode = nextCalcMode;
+                        UnityGitStatusSettings.CalcMode = nextCalcMode;
                     }
 
                     GUILayout.FlexibleSpace();
                 }
             }
 
-            if (GitProjectStatusSettings.ProjectOverlaysEnabled)
+            if (UnityGitStatusSettings.ProjectOverlaysEnabled)
             {
                 using (new EditorGUILayout.HorizontalScope())
                 {
@@ -209,12 +239,12 @@ namespace SCG.GitProjectStatus
 
                     var nextRightAlignedBadges = EditorGUILayout.ToggleLeft(
                         s_rightAlignedBadgesContent,
-                        GitProjectStatusSettings.RightAlignedBadges,
+                        UnityGitStatusSettings.RightAlignedBadges,
                         GUILayout.Width(RightAlignedBadgesToggleWidth));
 
-                    if (nextRightAlignedBadges != GitProjectStatusSettings.RightAlignedBadges)
+                    if (nextRightAlignedBadges != UnityGitStatusSettings.RightAlignedBadges)
                     {
-                        GitProjectStatusSettings.RightAlignedBadges = nextRightAlignedBadges;
+                        UnityGitStatusSettings.RightAlignedBadges = nextRightAlignedBadges;
                     }
 
                     GUILayout.FlexibleSpace();
@@ -226,29 +256,29 @@ namespace SCG.GitProjectStatus
 
                     var nextShowDeletedFilesInProject = EditorGUILayout.ToggleLeft(
                         s_showDeletedFilesInProjectContent,
-                        GitProjectStatusSettings.ShowDeletedFilesInProject,
+                        UnityGitStatusSettings.ShowDeletedFilesInProject,
                         GUILayout.Width(ShowDeletedFilesToggleWidth));
 
-                    if (nextShowDeletedFilesInProject != GitProjectStatusSettings.ShowDeletedFilesInProject)
+                    if (nextShowDeletedFilesInProject != UnityGitStatusSettings.ShowDeletedFilesInProject)
                     {
-                        GitProjectStatusSettings.ShowDeletedFilesInProject = nextShowDeletedFilesInProject;
+                        UnityGitStatusSettings.ShowDeletedFilesInProject = nextShowDeletedFilesInProject;
                     }
 
                     var nextShowLeftPaneOverlaysInTwoColumn = EditorGUILayout.ToggleLeft(
                         s_showLeftPaneOverlaysInTwoColumnContent,
-                        GitProjectStatusSettings.ShowLeftPaneOverlaysInTwoColumn,
+                        UnityGitStatusSettings.ShowLeftPaneOverlaysInTwoColumn,
                         GUILayout.Width(ShowLeftPaneOverlaysToggleWidth));
 
-                    if (nextShowLeftPaneOverlaysInTwoColumn != GitProjectStatusSettings.ShowLeftPaneOverlaysInTwoColumn)
+                    if (nextShowLeftPaneOverlaysInTwoColumn != UnityGitStatusSettings.ShowLeftPaneOverlaysInTwoColumn)
                     {
-                        GitProjectStatusSettings.ShowLeftPaneOverlaysInTwoColumn = nextShowLeftPaneOverlaysInTwoColumn;
+                        UnityGitStatusSettings.ShowLeftPaneOverlaysInTwoColumn = nextShowLeftPaneOverlaysInTwoColumn;
                     }
 
                     GUILayout.FlexibleSpace();
                 }
             }
 
-            var currentRefreshMode = GitProjectStatusSettings.RefreshMode;
+            var currentRefreshMode = UnityGitStatusSettings.RefreshMode;
             int nextRefreshModeIndex;
 
             using (new EditorGUILayout.HorizontalScope())
@@ -266,12 +296,12 @@ namespace SCG.GitProjectStatus
 
             if (nextRefreshMode != currentRefreshMode)
             {
-                GitProjectStatusSettings.ApplyRefreshMode(nextRefreshMode);
+                UnityGitStatusSettings.ApplyRefreshMode(nextRefreshMode);
             }
 
             if (nextRefreshMode == GitRefreshMode.Timed)
             {
-                var currentInterval = GitProjectStatusSettings.TimedRefreshIntervalSeconds;
+                var currentInterval = UnityGitStatusSettings.TimedRefreshIntervalSeconds;
                 var nextInterval = EditorGUILayout.IntSlider(
                     RefreshIntervalLabel,
                     currentInterval,
@@ -280,7 +310,7 @@ namespace SCG.GitProjectStatus
 
                 if (nextInterval != currentInterval)
                 {
-                    GitProjectStatusSettings.TimedRefreshIntervalSeconds = nextInterval;
+                    UnityGitStatusSettings.TimedRefreshIntervalSeconds = nextInterval;
                     GitStatusCache.ApplyRefreshSettingsChange(false);
                 }
             }
@@ -302,37 +332,50 @@ namespace SCG.GitProjectStatus
             EditorGUILayout.Space(Constants.WindowFooterTopSpacing * 2f);
             EditorGUILayout.LabelField(ChangedPathsSectionLabel, GetChangedPathsSectionHeaderStyle());
             pathSearch = EditorGUILayout.TextField(FileSearchLabel, pathSearch);
-            var nextShowMetaFiles = EditorGUILayout.ToggleLeft(s_showMetaFilesContent, GitProjectStatusSettings.ShowMetaFiles);
-
-            if (nextShowMetaFiles != GitProjectStatusSettings.ShowMetaFiles)
+            using (new EditorGUILayout.HorizontalScope())
             {
-                GitProjectStatusSettings.ShowMetaFiles = nextShowMetaFiles;
+                var currentSortMode = UnityGitStatusSettings.StatusSortMode;
+                var nextSortMode = (GitStatusSortMode)EditorGUILayout.Popup(
+                    (int)currentSortMode,
+                    s_sortModeOptions,
+                    GUILayout.MaxWidth(SortModePopupMaxWidth));
+
+                if (nextSortMode != currentSortMode)
+                {
+                    UnityGitStatusSettings.StatusSortMode = nextSortMode;
+                }
+
+                var nextShowMetaFiles = EditorGUILayout.ToggleLeft(
+                    s_showMetaFilesContent,
+                    UnityGitStatusSettings.ShowMetaFiles,
+                    GUILayout.Width(SectionLabelWidth));
+
+                if (nextShowMetaFiles != UnityGitStatusSettings.ShowMetaFiles)
+                {
+                    UnityGitStatusSettings.ShowMetaFiles = nextShowMetaFiles;
+                }
+
+                EditorGUILayout.LabelField(s_diffContextLinesContent, GUILayout.Width(90f));
+                var currentContextLines = UnityGitStatusSettings.DiffContextLines;
+                var nextContextLines = EditorGUILayout.IntSlider(
+                    currentContextLines,
+                    Constants.MinDiffContextLines,
+                    Constants.MaxDiffContextLines,
+                    GUILayout.MaxWidth(220f));
+
+                if (nextContextLines != currentContextLines)
+                {
+                    UnityGitStatusSettings.DiffContextLines = nextContextLines;
+                    LoadSelectedDiffs();
+                }
+
+                GUILayout.FlexibleSpace();
             }
 
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
-
-            var preferDisplayPath = !GitProjectStatusSettings.ShowMetaFiles;
-            var windowEntries = GetWindowEntries(currentSnapshot);
-            var matchingEntriesCount = 0;
-
-            foreach (var entry in windowEntries)
-            {
-                if (!ShouldShowEntry(entry) || !MatchesPathSearch(entry, preferDisplayPath))
-                    continue;
-
-                matchingEntriesCount++;
-                DrawEntry(entry, preferDisplayPath);
-            }
-
-            if (matchingEntriesCount == 0)
-            {
-                EditorGUILayout.LabelField(
-                    windowEntries.Count == 0
-                        ? NoChangedPathsText
-                        : NoChangedPathsMatchSearchText);
-            }
-
-            EditorGUILayout.EndScrollView();
+            var preferDisplayPath = !UnityGitStatusSettings.ShowMetaFiles;
+            var windowEntries = GetWindowEntries(currentSnapshot, preferDisplayPath);
+            HandleEntryKeyboardNavigation(windowEntries, preferDisplayPath);
+            DrawChangesWorkspace(windowEntries, preferDisplayPath);
 
             EditorGUILayout.Space(Constants.WindowFooterTopSpacing);
             DrawFooter(currentSnapshot);

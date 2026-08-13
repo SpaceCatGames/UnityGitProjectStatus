@@ -1,4 +1,4 @@
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Defines constants used by menus, settings, Git execution, project paths, and layout calculations.
@@ -10,7 +10,7 @@ namespace SCG.GitProjectStatus
         #region Menu Paths
 
         /// <summary>Root menu path for package actions under the menu.</summary>
-        public const string MenuRoot = "SCG/Git Project Status/";
+        public const string MenuRoot = "SCG/uGitStatus/";
 
         /// <summary>Menu path used to trigger an immediate refresh.</summary>
         public const string RefreshMenuPath = MenuRoot + "Refresh";
@@ -58,7 +58,7 @@ namespace SCG.GitProjectStatus
         public const string RefreshModeEventDrivenMenuPath = RefreshModeMenuRoot + "Event-Driven";
 
         /// <summary>Window menu path used to open the main status window.</summary>
-        public const string WindowMenuPath = MenuRoot + "Project Status Window &g";
+        public const string WindowMenuPath = MenuRoot + "Git Status Window &g";
 
         #endregion
 
@@ -72,37 +72,77 @@ namespace SCG.GitProjectStatus
         #region EditorPrefs
 
         /// <summary>EditorPrefs key storing whether Project window overlays are enabled.</summary>
-        public const string ProjectOverlaysEnabledKey = "SCG.GitProjectStatus.OverlayEnabled";
+        public const string ProjectOverlaysEnabledKey = "SCG.UnityGitStatus.OverlayEnabled";
 
         /// <summary>EditorPrefs key storing whether meta files are visible in the status window list.</summary>
-        public const string ShowMetaFilesKey = "SCG.GitProjectStatus.ShowMetaFiles";
+        public const string ShowMetaFilesKey = "SCG.UnityGitStatus.ShowMetaFiles";
+
+        /// <summary>EditorPrefs key storing the number of unchanged context lines shown around diff changes.</summary>
+        public const string DiffContextLinesKey = "SCG.UnityGitStatus.DiffContextLines";
 
         /// <summary>EditorPrefs key storing whether deleted files are shown in the Project footer.</summary>
-        public const string ShowDeletedFilesInProjectKey = "SCG.GitProjectStatus.ShowDeletedFilesInProject";
+        public const string ShowDeletedFilesInProjectKey = "SCG.UnityGitStatus.ShowDeletedFilesInProject";
 
         /// <summary>EditorPrefs key storing whether overlays are shown in the left pane for two-column Project layout.</summary>
-        public const string ShowLeftPaneOverlaysInTwoColumnKey = "SCG.GitProjectStatus.ShowLeftPaneOverlaysInTwoColumn";
+        public const string ShowLeftPaneOverlaysInTwoColumnKey = "SCG.UnityGitStatus.ShowLeftPaneOverlaysInTwoColumn";
 
         /// <summary>EditorPrefs key storing whether badges are drawn at the right side of Project rows.</summary>
-        public const string RightAlignedBadgesKey = "SCG.GitProjectStatus.RightAlignedBadges";
+        public const string RightAlignedBadgesKey = "SCG.UnityGitStatus.RightAlignedBadges";
 
         /// <summary>EditorPrefs key storing whether the Inspector header badge is enabled.</summary>
-        public const string InspectorBadgeEnabledKey = "SCG.GitProjectStatus.InspectorBadgeEnabled";
-
-        /// <summary>Legacy EditorPrefs key used by older builds for the Inspector badge toggle.</summary>
-        public const string LegacyShowInspectorBadgeKey = "SCG.GitProjectStatus.ShowInspectorBadge";
+        public const string InspectorBadgeEnabledKey = "SCG.UnityGitStatus.InspectorBadgeEnabled";
 
         /// <summary>EditorPrefs key storing whether Calc Mode is enabled for badge symbols.</summary>
-        public const string CalcModeKey = "SCG.GitProjectStatus.CalcMode";
+        public const string CalcModeKey = "SCG.UnityGitStatus.CalcMode";
 
         /// <summary>EditorPrefs key storing whether the Project deleted files block is expanded.</summary>
-        public const string ProjectDeletedEntriesExpandedKey = "SCG.GitProjectStatus.ProjectDeletedEntriesExpanded";
+        public const string ProjectDeletedEntriesExpandedKey = "SCG.UnityGitStatus.ProjectDeletedEntriesExpanded";
 
         /// <summary>EditorPrefs key storing the selected refresh mode.</summary>
-        public const string RefreshModeKey = "SCG.GitProjectStatus.RefreshMode";
+        public const string RefreshModeKey = "SCG.UnityGitStatus.RefreshMode";
 
         /// <summary>EditorPrefs key storing the selected timed refresh interval in seconds.</summary>
-        public const string TimedRefreshIntervalSecondsKey = "SCG.GitProjectStatus.TimedRefreshIntervalSeconds";
+        public const string TimedRefreshIntervalSecondsKey = "SCG.UnityGitStatus.TimedRefreshIntervalSeconds";
+
+        #region Legacy
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for Project window overlays.</summary>
+        public const string LegacyProjectOverlaysEnabledKey = "SCG.GitProjectStatus.OverlayEnabled";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for meta-file visibility.</summary>
+        public const string LegacyShowMetaFilesKey = "SCG.GitProjectStatus.ShowMetaFiles";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for deleted-file visibility.</summary>
+        public const string LegacyShowDeletedFilesInProjectKey = "SCG.GitProjectStatus.ShowDeletedFilesInProject";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for left-pane overlays.</summary>
+        public const string LegacyShowLeftPaneOverlaysInTwoColumnKey =
+            "SCG.GitProjectStatus.ShowLeftPaneOverlaysInTwoColumn";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for right-aligned badges.</summary>
+        public const string LegacyRightAlignedBadgesKey = "SCG.GitProjectStatus.RightAlignedBadges";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for the Inspector badge.</summary>
+        public const string LegacyInspectorBadgeEnabledKey = "SCG.GitProjectStatus.InspectorBadgeEnabled";
+
+        /// <summary>Older EditorPrefs key used for the Inspector badge before InspectorBadgeEnabled was introduced.</summary>
+        public const string LegacyShowInspectorBadgeKey = "SCG.GitProjectStatus.ShowInspectorBadge";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for Calc Mode.</summary>
+        public const string LegacyCalcModeKey = "SCG.GitProjectStatus.CalcMode";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for the deleted-entries expansion state.</summary>
+        public const string LegacyProjectDeletedEntriesExpandedKey =
+            "SCG.GitProjectStatus.ProjectDeletedEntriesExpanded";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for refresh mode.</summary>
+        public const string LegacyRefreshModeKey = "SCG.GitProjectStatus.RefreshMode";
+
+        /// <summary>EditorPrefs key used by pre-2.0 versions for the timed refresh interval.</summary>
+        public const string LegacyTimedRefreshIntervalSecondsKey =
+            "SCG.GitProjectStatus.TimedRefreshIntervalSeconds";
+
+        #endregion
 
         #endregion
 
@@ -116,6 +156,15 @@ namespace SCG.GitProjectStatus
 
         /// <summary>Shorter timeout used when resolving the current branch name.</summary>
         public const int BranchCommandTimeoutMilliseconds = 2000;
+
+        /// <summary>Default number of unchanged context lines shown around diff changes.</summary>
+        public const int DefaultDiffContextLines = 5;
+
+        /// <summary>Minimum number of unchanged context lines shown around diff changes.</summary>
+        public const int MinDiffContextLines = 1;
+
+        /// <summary>Maximum number of unchanged context lines shown around diff changes.</summary>
+        public const int MaxDiffContextLines = 20;
 
         /// <summary>Default refresh interval used by timed refresh mode.</summary>
         public const int DefaultTimedRefreshIntervalSeconds = 5;
@@ -202,7 +251,7 @@ namespace SCG.GitProjectStatus
         /// <summary> 
         /// Editor style name used by Unity for the large Inspector header.
         /// m_InspectorBig = GetStyle("In BigTitle");
-        /// <see cref="UnityEditor.EditorStyle.inspectorBig"/>
+        /// <see cref="UnityEditor.EditorStyles.inspectorBig"/>
         /// </summary>
         public const string InspectorHeaderStyleName = "In BigTitle";
 

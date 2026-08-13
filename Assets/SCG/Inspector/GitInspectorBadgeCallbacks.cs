@@ -3,7 +3,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Handles Inspector header badge drawing for persistent Unity assets.
@@ -25,7 +25,7 @@ namespace SCG.GitProjectStatus
             var postHeaderContentRect = GUILayoutUtility.GetRect(0f, 0f, GUIStyle.none, GUILayout.ExpandWidth(true));
 
             if (AssetDatabase.IsAssetImportWorkerProcess() ||
-                !GitProjectStatusSettings.InspectorBadgeEnabled ||
+                !UnityGitStatusSettings.InspectorBadgeEnabled ||
                 !GitStatusCache.RepositoryDetected ||
                 !TryCreateInspectorBadgeContext(editor, out var context) ||
                 Event.current.type != EventType.Repaint)
@@ -39,7 +39,7 @@ namespace SCG.GitProjectStatus
                 return;
 
             var descriptor = GitStatusDescriptors.Get(entry.Kind);
-            GitStatusBadgeGui.Draw(GetInspectorBadgeRect(headerRect), descriptor, GitProjectStatusSettings.CalcMode);
+            GitStatusBadgeGui.Draw(GetInspectorBadgeRect(headerRect), descriptor, UnityGitStatusSettings.CalcMode);
         }
 
         private static Rect GetInspectorBadgeRect(Rect headerRect)

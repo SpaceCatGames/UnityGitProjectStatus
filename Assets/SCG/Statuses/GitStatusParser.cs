@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace SCG.GitProjectStatus
+namespace SCG.UnityGitStatus
 {
     /// <summary>
     /// Parses the null-delimited output of `git status --porcelain=v1 -z`.
